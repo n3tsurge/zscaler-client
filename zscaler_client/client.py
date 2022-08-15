@@ -2,6 +2,7 @@ import time
 import logging
 from .errors import *
 from requests import Session
+from .models import RuleLabel
 
 class APIClient:
 
@@ -69,7 +70,7 @@ class APIClient:
         if data:
             request_parameters['data'] = data
 
-        self.logger.info(f"Making request to {endpoint}")
+        self.logger.info(f"Making {method} request to {endpoint}")
 
         response = request(f"{self.scheme}://{self.base_url}{endpoint}", **request_parameters)
         if response.status_code in [200, 204, 409]:
@@ -196,6 +197,17 @@ class APIClient:
 
         return None
 
+
+    """Rule Labels"""
+    def rule_labels(self, page: int = 1, page_size: int = 250):
+        '''
+        Returns a list of rule labels
+        '''
+
+        response = self.call_api(endpoint='/api/v1/ruleLabels')
+        if len(response.json()) > 0:
+            return [RuleLabel(**label, client=self) for label in response.json()]
+        return []
 
     def create_vpn_credentials(self, cred_type: str = "CN", fqdn: str = None, preSharedKey: str = None, location: dict = None, generate_psk: bool = False, comments: str = ""):
         '''

@@ -2,7 +2,7 @@
 name = "zscaler-client"
 version = "0.1.0"
 description = ""
-authors = ["Brian Carroll <bcarroll@holmanenterprises.com>"]
+authors = ["Brian Carroll <Brian.Carroll@holman.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
