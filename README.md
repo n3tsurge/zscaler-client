@@ -1,5 +1,7 @@
 # ZScaler API Client
 
+> **WARNING**: This is a work in progress and may have bugs that could severily impact your Zscaler implementation, use at your own risk
+
 ## Installation
 
 1. Clone the repository in to your project
