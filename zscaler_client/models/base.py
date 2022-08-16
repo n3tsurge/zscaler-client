@@ -57,12 +57,13 @@ class BaseModel(JSONSerializable):
     actions = []
     parameters = []
     required_fields = []
+    required_parameters = []
 
     def __init__(self, client_alias='default', *args, **kwargs):
 
         # The API client used to make API calls
         self.api_client = get_client()
-        self.internal_fields = ['api_client', 'actions', 'updatable_fields', 'interal_fields']
+        self.internal_fields = ['api_client', 'actions', 'updatable_fields', 'internal_fields']
 
         if (kwargs):
             for k in kwargs:
@@ -122,8 +123,15 @@ class BaseModel(JSONSerializable):
         if endpoint:
             _endpoint = endpoint
 
+        api_params['params'] = {}
+
         if 'params' in kwargs:
             api_params['params'] = cls.parse_url_parameters(params=kwargs.get('params', {}))
+
+        # Check to make sure any required parameters are supplied
+        for p in cls.required_parameters:
+            if p not in api_params['params']:
+                raise MissingRequiredParameter(f'The "{p}" parameter is required.')
 
         response = cls.api_client.call_api(method='GET', endpoint=_endpoint, **api_params)
         items = response.json()
@@ -146,6 +154,11 @@ class BaseModel(JSONSerializable):
 
         if 'params' in kwargs:
             api_params['params'] = cls.parse_url_parameters(kwargs.get('params', {}))
+
+        # Check to make sure any required parameters are supplied
+        for p in cls.required_parameters:
+            if p not in api_params['params']:
+                raise MissingRequiredParameter(f'The "{p}" parameter is required.')
 
         return cls.search(endpoint=f"{cls.endpoint}/{id}", **api_params)
 
@@ -171,8 +184,8 @@ class BaseModel(JSONSerializable):
         request_body = {k: self.__dict__[k] for k in self.__dict__ if k in self.updatable_fields}
 
         # Check required fields
-        for k in request_body:
-            if k not in self.required_fields:
+        for k in self.required_fields:
+            if k not in request_body:
                 raise MissingRequiredField(f'The field "{k}" is required.')
 
         # If there are fields in the request_body call the API
@@ -180,7 +193,9 @@ class BaseModel(JSONSerializable):
             response = self.api_client.call_api(method='POST', endpoint=f'{self.endpoint}', json=request_body)
             if response.status_code == [400, 409]:
                 raise RequestError(response.message)
-            return response
+
+            # Update the attributes of the item just created with the response from API
+            self.__dict__.update(response.json())
 
         return None
 

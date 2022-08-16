@@ -58,6 +58,7 @@ print(lookup)
     - [x] Update Static IP
     - [x] Delete Static IP
     - [x] List Zscaler Cloud VIPs
+    - [x] List Zscaler Cloud VIPs by Datacenter
 - [ ] User Management
 - [ ] URL Categories
     - [x] URL Category list

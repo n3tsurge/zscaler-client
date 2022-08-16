@@ -18,3 +18,6 @@ class UrlLengthExceeded(Exception):
 
 class MissingRequiredField(Exception):
     pass
+
+class MissingRequiredParameter(Exception):
+    pass

@@ -12,10 +12,11 @@ from .security import (
 
 from .forwarding import (
     PublicNode,
+    DataCenterVips,
     GreTunnel,
     GreTunnelIPRange,
     OrgProvisioningGreTunnelInfo,
-    StaticIp
+    StaticIp    
 )
 
 __all__ = [
@@ -24,6 +25,7 @@ __all__ = [
     'UrlCategory',
     'AdvancedSecurityBlacklist',
     'PublicNode',
+    'DataCenterVips',
     'GreTunnel',
     'GreTunnelIPRange',
     'OrgProvisioningGreTunnelInfo',

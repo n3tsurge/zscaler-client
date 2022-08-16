@@ -1,5 +1,15 @@
 from .base import BaseModel
 
+class DataCenterVips(BaseModel):
+
+    endpoint = '/vips/groupByDatacenter'
+    parameters = [
+        'routableIP', 'withinCountryOnly', 'includePrivateServiceEdge', 'includeCurrentVips',
+        'sourceIp','latitude','longitude','subcloud'
+    ]
+    required_parameters = ['sourceIp']
+    actions = ['get']
+
 class PublicNode(BaseModel):
 
     endpoint = '/vips'
