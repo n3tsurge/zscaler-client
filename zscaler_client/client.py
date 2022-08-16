@@ -72,7 +72,7 @@ class APIClient:
 
         self.logger.info(f"Making {method} request to {endpoint}")
 
-        response = request(f"{self.scheme}://{self.base_url}{endpoint}", **request_parameters)
+        response = request(f"{self.scheme}://{self.base_url}/api/v1{endpoint}", **request_parameters)
         if response.status_code in [200, 204, 409]:
             return response
         else:
@@ -96,7 +96,7 @@ class APIClient:
             'timestamp': now
         }
 
-        response = self.call_api(method='POST', endpoint="/api/v1/authenticatedSession", json=request_body)
+        response = self.call_api(method='POST', endpoint="/authenticatedSession", json=request_body)
 
 
     def activate(self, retry_time: int = 1, max_retries: int = 5):
@@ -109,7 +109,7 @@ class APIClient:
         activation_success = False
 
         while not activation_success and retries != max_retries:
-            response = self.call_api(method='POST', endpoint="/api/v1/status/activate")
+            response = self.call_api(method='POST', endpoint="/status/activate")
             if response.status_code == 409:
                 retries += 1
                 time.sleep(1)
@@ -134,7 +134,7 @@ class APIClient:
         the categories for each URL
         '''
 
-        response = self.call_api(method='POST', endpoint="/api/v1/urlLookup", json=['google.com'])
+        response = self.call_api(method='POST', endpoint="/urlLookup", json=['google.com'])
         if response.status_code == 200:
             return response.json()
 
@@ -144,7 +144,7 @@ class APIClient:
         Returns a list of all the groups in the Zscaler platform
         '''
 
-        response = self.call_api(endpoint="/api/v1/groups")
+        response = self.call_api(endpoint="/groups")
         return response.json()
 
 
@@ -155,7 +155,7 @@ class APIClient:
 
         group_or_dept = "group" if group else "dept"
 
-        response = self.call_api(endpoint=f"/api/v1/users?{group_or_dept}={group_name}")
+        response = self.call_api(endpoint=f"/users?{group_or_dept}={group_name}")
         return response.json()
         
 
@@ -176,7 +176,7 @@ class APIClient:
         }
 
         if len(values) > 0:
-            response = self.call_api(method='POST', endpoint='/api/v1/security/advanced/blacklistUrls?action=ADD_TO_LIST', json=request_body)
+            response = self.call_api(method='POST', endpoint='/security/advanced/blacklistUrls?action=ADD_TO_LIST', json=request_body)
             return response
 
         return None
@@ -192,7 +192,7 @@ class APIClient:
         }
 
         if len(values) > 0:
-            response = self.call_api(method='POST', endpoint='/api/v1/security/advanced/blacklistUrls?action=REMOVE_FROM_LIST', json=request_body)
+            response = self.call_api(method='POST', endpoint='/security/advanced/blacklistUrls?action=REMOVE_FROM_LIST', json=request_body)
             return response
 
         return None
@@ -204,10 +204,11 @@ class APIClient:
         Returns a list of rule labels
         '''
 
-        response = self.call_api(endpoint='/api/v1/ruleLabels')
+        response = self.call_api(endpoint='/ruleLabels')
         if len(response.json()) > 0:
             return [RuleLabel(**label, client=self) for label in response.json()]
         return []
+
 
     def create_vpn_credentials(self, cred_type: str = "CN", fqdn: str = None, preSharedKey: str = None, location: dict = None, generate_psk: bool = False, comments: str = ""):
         '''
@@ -240,6 +241,6 @@ class APIClient:
         if location != {}:
             request_body['location'] = location
 
-        response = self.call_api(endpoint=f"/api/v1/vpnCredentials", method="POST", json=request_body)
+        response = self.call_api(endpoint=f"/vpnCredentials", method="POST", json=request_body)
         return response
 
