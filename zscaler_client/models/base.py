@@ -88,6 +88,7 @@ class BaseModel(JSONSerializable):
         '''
         Performs search operations on a model
         '''
+
         if not hasattr(cls, 'api_client'):
             cls.api_client = get_client()
 
@@ -111,8 +112,22 @@ class BaseModel(JSONSerializable):
         request_body = {k: self.__dict__[k] for k in self.__dict__ if k in self.updatable_fields}
         if len(request_body) > 0:
             response = self.api_client.call_api(method='POST', endpoint=f'{self.endpoint}', json=request_body)
+            if response.status_code == [400, 409]:
+                raise RequestError(response.message)
             return response
         return None
+
+
+    def delete(self):
+        '''
+        Deletes an object
+        '''
+
+        if 'delete' not in self.actions:
+            raise NotImplementedError(f'The "delete" action is not implemented on {self.__class__.__name__}')
+
+        response = self.api_client.call_api(method='DELETE', endpoint=f'{self.endpoint}/{self.id}')
+        return response        
 
 
     def as_dict(self):

@@ -38,7 +38,10 @@ print(lookup)
 - [ ] Device Groups
 - [ ] Firewall Policies
 - [ ] Location Management
-- [ ] Rule Labels
+- [x] Rule Labels
+    - [x] Get rule labels
+    - [x] Update rule labels
+    - [x] Delete rule labels
 - [ ] Security Policy Settings
     - [x] Add/Remove values to Advanced Security Deny List
     - [ ] Update entire Advanced Security Deny List (overwrite)

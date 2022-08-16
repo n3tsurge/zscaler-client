@@ -5,4 +5,4 @@ class RuleLabel(BaseModel):
 
     endpoint = "/ruleLabels"
     updatable_fields = ['name','description']
-    actions = ['save','update','create']
+    actions = ['save','update','create','delete']

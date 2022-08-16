@@ -5,9 +5,13 @@ from .url import (
     UrlClassificationInformation,
     UrlCategory
 )
+from .security import (
+    AdvancedSecurityBlacklist
+)
 
 __all__ = [
     'RuleLabel',
     'UrlClassificationInformation',
-    'UrlCategory'
+    'UrlCategory',
+    'AdvancedSecurityBlacklist'
 ]

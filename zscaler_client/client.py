@@ -145,6 +145,8 @@ class APIClient:
         response = request(f"{self.scheme}://{self.base_url}/api/v1{endpoint}", **request_parameters)
         if response.status_code in [200, 204, 409]:
             return response
+        elif response.status_code == 405:
+            raise RequestError(f'The method "{method}" is not supported for {endpoint}')
         else:
             raise RequestError(response.text)
 
@@ -197,39 +199,6 @@ class APIClient:
 
         response = self.call_api(method='DELETE', endpoint="/authenticatedSesssion")
 
-    """URL Endpoints"""
-    def url_lookup(self, url: list = []):
-        '''
-        Calls the /api/v1/urlLookup endpoint with a list of URLs and returns
-        the categories for each URL
-        '''
-
-        if len(url) > 100:
-            raise MaxSizeExeededError(f"More than 100 URLs supplied for the url parameter.")
-
-        for u in url:
-            if len(url) > 1024:
-                raise UrlLengthExceeded(f"The url {u} is longer than 1024 characters.")
-
-        response = self.call_api(method='POST', endpoint="/urlLookup", json=url)
-        if response.status_code == 200:
-            return [UrlClassificationInformation(**u) for u in response.json() if u]
-
-
-    def url_categories(self, customOnly=None, includeOnlyUrlKeywordCounts=False):
-        '''
-        Calls the /api/v1/urlCategories endpoint and returns a list of UrlCategory objects
-        '''
-
-        params = {
-            'customOnly': customOnly,
-            'includeOnlyUrlKeywordCounts': includeOnlyUrlKeywordCounts
-        }
-
-        response = self.call_api(method='GET', endpoint=UrlCategory.endpoint, params=params)
-        if response.status_code == 200:
-            return [UrlCategory(**c) for c in response.json() if c]
-
 
     def list_groups(self):
         '''
@@ -256,50 +225,6 @@ class APIClient:
         Returns a list of users in a specific department
         '''
         return self.get_group_users(dept_name, group=False)
-
-
-    def add_to_denylist(self, values: list = []):
-        '''
-        Adds a value or multiple values to the built in Deny List under Advanced Threat Protection
-        '''
-
-        request_body = {
-            'blacklistUrls': values
-        }
-
-        if len(values) > 0:
-            response = self.call_api(method='POST', endpoint='/security/advanced/blacklistUrls?action=ADD_TO_LIST', json=request_body)
-            return response
-
-        return None
-
-    
-    def add_to_denylist(self, values: list = []):
-        '''
-        Removes a value or multiple values from the built in Deny List under Advanced Threat Protection
-        '''
-
-        request_body = {
-            'blacklistUrls': values
-        }
-
-        if len(values) > 0:
-            response = self.call_api(method='POST', endpoint='/security/advanced/blacklistUrls?action=REMOVE_FROM_LIST', json=request_body)
-            return response
-
-        return None
-
-
-    """Rule Labels"""
-    def rule_labels(self, page: int = 1, page_size: int = 250):
-        '''
-        Returns a list of rule labels
-        '''
-
-        response = self.call_api(endpoint='/ruleLabels')
-        if len(response.json()) > 0:
-            return [RuleLabel(**label, client=self) for label in response.json()]
-        return []
 
 
     def create_vpn_credentials(self, cred_type: str = "CN", fqdn: str = None, preSharedKey: str = None, location: dict = None, generate_psk: bool = False, comments: str = ""):
