@@ -2,7 +2,74 @@ import time
 import logging
 from .errors import *
 from requests import Session
-from .models import *
+#from .models import UrlCategory, UrlClassificationInformation, RuleLabel
+
+class Clients:
+    """
+    Class responsible for holding multiple API clients.  Used as a 
+    singleton in this module.
+    """
+
+    def __init__(self):
+        self._kwargs = {}
+        self._clients = {}
+
+    def configure(self, **kwargs):
+        """
+        Configure multiple clients at once
+        """
+        for k in list(self._clients):
+            if k in self._kwargs and kwargs.get(k, None) == self._kwargs[k]:
+                continue
+            del self._clients[k]
+        self._kwargs = kwargs
+
+    def add_client(self, alias, client):
+        """
+        Adds a client to the list of clients
+        """
+        self._clients[alias] = client
+
+    def remove_client(self, alias):
+        """
+        Removes a client from the registry. Raises a KeyError if the 
+        client was not found
+        """
+        errors = 0
+        for d in (self._clients, self._kwargs):
+            try:
+                del d[alias]
+            except KeyError:
+                errors += 1
+
+        if errors == 2:
+            raise KeyError(f"THere is no connection with the alias {alias!r}.")
+
+    def create_client(self, alias='default', **kwargs):
+        """
+        Creates an instace of client.APIClient and registers it under the default
+        alias
+        """
+        client = self._clients[alias] = APIClient(**kwargs)
+        return client
+
+    def get_client(self, alias='default'):
+        """
+        Retrieve a connection based on the supplied alias
+        """
+        if not isinstance(alias, str):
+            return alias
+
+        try:
+            return self._clients[alias]
+        except KeyError:
+            pass
+
+        try:
+            return self.create_connection(alias, **self._kwargs[alias])
+        except KeyError:
+            raise KeyError(f"There is no connection with the alias {alias!r}.")
+
 
 class APIClient:
 
@@ -48,7 +115,7 @@ class APIClient:
         return key
 
 
-    def call_api(self, method: str = "GET", endpoint: str = "", json: dict = {}, data: dict = {}):
+    def call_api(self, method: str = "GET", endpoint: str = "", json: dict = {}, data: dict = {}, params: dict = {}):
         '''
         Makes a call to the API using the existing APIClient session
         '''
@@ -63,6 +130,9 @@ class APIClient:
         request = request_map[method]
 
         request_parameters = {}
+
+        if params:
+            request_parameters['params'] = params
 
         if json:
             request_parameters['json'] = json
@@ -127,7 +197,7 @@ class APIClient:
 
         response = self.call_api(method='DELETE', endpoint="/authenticatedSesssion")
 
-
+    """URL Endpoints"""
     def url_lookup(self, url: list = []):
         '''
         Calls the /api/v1/urlLookup endpoint with a list of URLs and returns
@@ -144,6 +214,21 @@ class APIClient:
         response = self.call_api(method='POST', endpoint="/urlLookup", json=url)
         if response.status_code == 200:
             return [UrlClassificationInformation(**u) for u in response.json() if u]
+
+
+    def url_categories(self, customOnly=None, includeOnlyUrlKeywordCounts=False):
+        '''
+        Calls the /api/v1/urlCategories endpoint and returns a list of UrlCategory objects
+        '''
+
+        params = {
+            'customOnly': customOnly,
+            'includeOnlyUrlKeywordCounts': includeOnlyUrlKeywordCounts
+        }
+
+        response = self.call_api(method='GET', endpoint=UrlCategory.endpoint, params=params)
+        if response.status_code == 200:
+            return [UrlCategory(**c) for c in response.json() if c]
 
 
     def list_groups(self):
@@ -251,3 +336,6 @@ class APIClient:
         response = self.call_api(endpoint=f"/vpnCredentials", method="POST", json=request_body)
         return response
 
+clients = Clients()
+create_client = clients.create_client
+get_client = clients.get_client

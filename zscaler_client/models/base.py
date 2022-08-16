@@ -1,6 +1,8 @@
 import json
 from json import JSONEncoder
 from ..errors import *
+from ..client import get_client
+
 
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, o):
@@ -33,13 +35,10 @@ class BaseModel(JSONSerializable):
     A BaseModel used by all other Models
     '''
 
-    def __init__(self, client=None, *args, **kwargs):
+    def __init__(self, client_alias='default', *args, **kwargs):
 
         # The API client used to make API calls
-        self.api_client = client
-        self.updatable_fields = []
-        self.actions = []
-        self.approved_methods = []
+        self.api_client = get_client()
         self.internal_fields = ['api_client', 'actions', 'updatable_fields']
 
         if (kwargs):
@@ -53,8 +52,8 @@ class BaseModel(JSONSerializable):
         e.g. model.update(name="foo")
         '''
 
-        if 'save' not in self.actions:
-            raise ActionNotSupported(f'The "update" action is not supported on {self.__class__.__name__}')
+        if 'update' not in self.actions:
+            raise NotImplementedError(f'The "update" action is not implemented on {self.__class__.__name__}')
 
         request_body = {}
 
@@ -73,14 +72,47 @@ class BaseModel(JSONSerializable):
         '''
 
         if 'save' not in self.actions:
-            raise ActionNotSupported(f'The "save" action is not supported on {self.__class__.__name__}')
+            raise NotImplementedError(f'The "save" action is not implemented on {self.__class__.__name__}')
 
         request_body = {k: self.__dict__[k] for k in self.__dict__ if k in self.updatable_fields}
         if len(request_body) > 0:
-            if hasattr(self, 'id'):
-                self.api_client.call_api(method='PUT', endpoint=f'{self.endpoint}/{self.id}', json=request_body)
-            else:
-                self.api_client.call_api(method='POST', endpoint=f'{self.endpoint}', json=request_body)
+            if not new:
+                response = self.api_client.call_api(method='PUT', endpoint=f'{self.endpoint}/{self.id}', json=request_body)
+                return response
+        
+        return None
+
+
+    @classmethod
+    def search(cls, **kwargs):
+        '''
+        Performs search operations on a model
+        '''
+        if not hasattr(cls, 'api_client'):
+            cls.api_client = get_client()
+
+        api_params = {}
+
+        if 'params' in kwargs:
+            api_params['params'] = kwargs.get('params', {})
+
+        response = cls.api_client.call_api(method='GET', endpoint=cls.endpoint, **api_params)
+        return [cls(**r) for r in response.json() if r]
+    
+
+    def create(self):
+        '''
+        Creates a new object in the API
+        '''
+
+        if 'create' not in self.actions:
+            raise NotImplementedError(f'The "create" action is not implemented on {self.__class__.__name__}')
+
+        request_body = {k: self.__dict__[k] for k in self.__dict__ if k in self.updatable_fields}
+        if len(request_body) > 0:
+            response = self.api_client.call_api(method='POST', endpoint=f'{self.endpoint}', json=request_body)
+            return response
+        return None
 
 
     def as_dict(self):

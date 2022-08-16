@@ -8,10 +8,23 @@
 2. Initialize the API Client using the steps below
 
 ```python
-from zscaler_client.client import APIClient
+from zscaler_client.client import create_client
+from zscaler_client.models import UrlCategory
 
-api = APIClient(config={'api_key': 'YOUR_API_KEY_HERE'}, base_url="YOUR_BASE_URL_HERE")
-api.auth(username="API_USER", password="API_USER_PASSWORD")
+# Create a new client connection
+client = create_client(config={'api_key': 'YOUR_API_KEY_HERE'}, base_url="YOUR_BASE_URL_HERE")
+
+# Authenticate to the API
+client.auth(username="API_USER", password="API_USER_PASSWORD")
+
+# Fetch URL Categories
+categories = UrlCategory.search()
+for category in categories:
+    print(category.id)
+
+# Search URL Categorizations
+lookup = UrlClassificationInformation.search(url=['netsurge.sh'])
+print(lookup)
 ```
 
 ## API Coverage
@@ -34,6 +47,8 @@ api.auth(username="API_USER", password="API_USER_PASSWORD")
     - [x] Add VPN Credentials
 - [ ] User Management
 - [ ] URL Categories
+    - [x] URL Category list
+    - [ ] Create Custom URL Category
     - [x] URL Category lookup
 - [ ] URL Filtering Policies
 - [ ] User Authentication Settings
