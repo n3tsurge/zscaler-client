@@ -170,6 +170,12 @@ class BaseModel(JSONSerializable):
         '''
         return {k: params[k] for k in params if k in self.parameters}
 
+    
+    @classmethod
+    def get_client(cls):
+        if not hasattr(cls, 'api_client'):
+            cls.api_client = get_client()
+
 
     def create(self):
         '''
