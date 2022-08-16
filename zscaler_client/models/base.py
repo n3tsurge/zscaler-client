@@ -113,6 +113,9 @@ class BaseModel(JSONSerializable):
         Performs search operations on a model
         '''
 
+        if 'get' not in cls.actions:
+            raise NotImplementedError(f'The "search" action is not implemented on {cls.__class__.__name__}')
+
         if not hasattr(cls, 'api_client'):
             cls.api_client = get_client()
 
@@ -142,7 +145,7 @@ class BaseModel(JSONSerializable):
 
 
     @classmethod
-    def get(cls, id, **kwargs):
+    def get(cls, id=None, **kwargs):
 
         if 'get' not in cls.actions:
             raise NotImplementedError(f'The "get" action is not implemented on {cls.__class__.__name__}')
@@ -160,7 +163,10 @@ class BaseModel(JSONSerializable):
             if p not in api_params['params']:
                 raise MissingRequiredParameter(f'The "{p}" parameter is required.')
 
-        return cls.search(endpoint=f"{cls.endpoint}/{id}", **api_params)
+        if id:
+            return cls.search(endpoint=f"{cls.endpoint}/{id}", **api_params)
+        else:
+            return cls.search(endpoint=f"{cls.endpoint}", **api_params)
 
 
     @classmethod

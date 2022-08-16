@@ -7,6 +7,7 @@ from .url import (
 )
 
 from .security import (
+    AdvancedSecurity,
     AdvancedSecurityBlacklist
 )
 
@@ -23,6 +24,7 @@ __all__ = [
     'RuleLabel',
     'UrlClassificationInformation',
     'UrlCategory',
+    'AdvancedSecurity',
     'AdvancedSecurityBlacklist',
     'PublicNode',
     'DataCenterVips',

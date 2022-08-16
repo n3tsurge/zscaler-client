@@ -44,7 +44,7 @@ print(lookup)
     - [x] Delete rule labels
 - [ ] Security Policy Settings
     - [x] Add/Remove values to Advanced Security Deny List
-    - [ ] Update entire Advanced Security Deny List (overwrite)
+    - [x] Update entire Advanced Security Deny List
 - [ ] SSL Inspection Settings
 - [ ] Traffic Forwarding
     - [x] Add VPN Credentials
