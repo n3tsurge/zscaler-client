@@ -1,5 +1,6 @@
 import json
 from json import JSONEncoder
+from ..errors import *
 
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, o):
@@ -32,10 +33,14 @@ class BaseModel(JSONSerializable):
     A BaseModel used by all other Models
     '''
 
-    def __init__(self, client, *args, **kwargs):
+    def __init__(self, client=None, *args, **kwargs):
 
         # The API client used to make API calls
         self.api_client = client
+        self.updatable_fields = []
+        self.actions = []
+        self.approved_methods = []
+        self.internal_fields = ['api_client', 'actions', 'updatable_fields']
 
         if (kwargs):
             for k in kwargs:
@@ -47,6 +52,9 @@ class BaseModel(JSONSerializable):
         Updates the model using the fields modified, used when updating a single field
         e.g. model.update(name="foo")
         '''
+
+        if 'save' not in self.actions:
+            raise ActionNotSupported(f'The "update" action is not supported on {self.__class__.__name__}')
 
         request_body = {}
 
@@ -64,14 +72,23 @@ class BaseModel(JSONSerializable):
         Saves the entire model used when using model.field = "x" then running model.save()
         '''
 
+        if 'save' not in self.actions:
+            raise ActionNotSupported(f'The "save" action is not supported on {self.__class__.__name__}')
+
         request_body = {k: self.__dict__[k] for k in self.__dict__ if k in self.updatable_fields}
         if len(request_body) > 0:
-            self.api_client.call_api(method='PUT', endpoint=f'{self.endpoint}/{self.id}', json=request_body)
+            if hasattr(self, 'id'):
+                self.api_client.call_api(method='PUT', endpoint=f'{self.endpoint}/{self.id}', json=request_body)
+            else:
+                self.api_client.call_api(method='POST', endpoint=f'{self.endpoint}', json=request_body)
 
 
     def as_dict(self):
-        return {k: self.__dict__.get(k, None) for k in self.__dict__ if k not in ['api_client']}
+        return {k: self.__dict__.get(k, None) for k in self.__dict__ if k not in self.internal_fields}
 
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(id={self.id})"
+        if hasattr(self, 'id'):
+            return f"{self.__class__.__name__}(id={self.id})"
+        else:
+            return f"{self.__class__.__name__}("+", ".join([f"{k}={self.__dict__[k]}" for k in self.__dict__ if k not in self.internal_fields])+")"

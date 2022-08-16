@@ -6,3 +6,12 @@ class RequestError(Exception):
 
 class ActivationError(Exception):
     pass
+
+class ActionNotSupported(Exception):
+    pass
+
+class MaxSizeExeededError(Exception):
+    pass
+
+class UrlLengthExceeded(Exception):
+    pass

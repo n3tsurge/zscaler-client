@@ -34,5 +34,6 @@ api.auth(username="API_USER", password="API_USER_PASSWORD")
     - [x] Add VPN Credentials
 - [ ] User Management
 - [ ] URL Categories
+    - [x] URL Category lookup
 - [ ] URL Filtering Policies
 - [ ] User Authentication Settings

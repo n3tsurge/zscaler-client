@@ -2,7 +2,7 @@ import time
 import logging
 from .errors import *
 from requests import Session
-from .models import RuleLabel
+from .models import *
 
 class APIClient:
 
@@ -125,7 +125,7 @@ class APIClient:
         Kills the active session to the API
         '''
 
-        response = self.call_api(method='DELETE', endpoint="/api/v1/authenticatedSesssion")
+        response = self.call_api(method='DELETE', endpoint="/authenticatedSesssion")
 
 
     def url_lookup(self, url: list = []):
@@ -134,9 +134,16 @@ class APIClient:
         the categories for each URL
         '''
 
-        response = self.call_api(method='POST', endpoint="/urlLookup", json=['google.com'])
+        if len(url) > 100:
+            raise MaxSizeExeededError(f"More than 100 URLs supplied for the url parameter.")
+
+        for u in url:
+            if len(url) > 1024:
+                raise UrlLengthExceeded(f"The url {u} is longer than 1024 characters.")
+
+        response = self.call_api(method='POST', endpoint="/urlLookup", json=url)
         if response.status_code == 200:
-            return response.json()
+            return [UrlClassificationInformation(**u) for u in response.json() if u]
 
 
     def list_groups(self):
