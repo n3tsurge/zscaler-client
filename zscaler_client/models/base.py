@@ -1,21 +1,40 @@
 import json
 from json import JSONEncoder
 from ..errors import *
-from ..client import get_client
+from ..client import get_client, APIClient
+
+
+class CustomJsonEncoder2(json.JSONEncoder):
+    def default(self, o):
+
+        skip_fields = ['api_client', 'endpoint', 'internal_fields']
+        if isinstance(o, JSONSerializable):
+            return {k: o.__dict__[k] for k in o.__dict__ if k != skip_fields}
+
+        if not isinstance(o, APIClient):
+            return json.JSONEncoder.default(self, o)
 
 
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, JSONSerializable):
-            return {k: o.__dict__[k] for k in o.__dict__ if k != 'api_client'}
-        return json.JSONEncoder.default(self, o)
 
+        if isinstance(o, JSONSerializable):
+            return o.__dict__
+
+        if not isinstance(o, APIClient):
+            return json.JSONEncoder.default(self, o)
+        
 
 class JSONSerializable(object):
     ''' Allows for an object to be represented in JSON format '''
 
     def jsonify(self):
         ''' Returns a json string of the object '''
+
+        skip_fields = ['api_client', 'endpoint', 'internal_fields']
+        for field in skip_fields:
+            if field in self.__dict__:
+                del self.__dict__[field]
         
         return json.dumps(self, sort_keys=True, indent=4, cls=CustomJsonEncoder)
 
@@ -35,11 +54,15 @@ class BaseModel(JSONSerializable):
     A BaseModel used by all other Models
     '''
 
+    actions = []
+    parameters = []
+    required_fields = []
+
     def __init__(self, client_alias='default', *args, **kwargs):
 
         # The API client used to make API calls
         self.api_client = get_client()
-        self.internal_fields = ['api_client', 'actions', 'updatable_fields']
+        self.internal_fields = ['api_client', 'actions', 'updatable_fields', 'interal_fields']
 
         if (kwargs):
             for k in kwargs:
@@ -84,7 +107,7 @@ class BaseModel(JSONSerializable):
 
 
     @classmethod
-    def search(cls, **kwargs):
+    def search(cls, endpoint=None, **kwargs):
         '''
         Performs search operations on a model
         '''
@@ -94,27 +117,71 @@ class BaseModel(JSONSerializable):
 
         api_params = {}
 
-        if 'params' in kwargs:
-            api_params['params'] = kwargs.get('params', {})
+        _endpoint = cls.endpoint
 
-        response = cls.api_client.call_api(method='GET', endpoint=cls.endpoint, **api_params)
-        return [cls(**r) for r in response.json() if r]
-    
+        if endpoint:
+            _endpoint = endpoint
+
+        if 'params' in kwargs:
+            api_params['params'] = cls.parse_url_parameters(params=kwargs.get('params', {}))
+
+        response = cls.api_client.call_api(method='GET', endpoint=_endpoint, **api_params)
+        items = response.json()
+        if isinstance(items, list):
+            return [cls(**r) for r in items if r]
+        else:
+            return cls(**items)
+
+
+    @classmethod
+    def get(cls, id, **kwargs):
+
+        if 'get' not in cls.actions:
+            raise NotImplementedError(f'The "get" action is not implemented on {cls.__class__.__name__}')
+
+        if not hasattr(cls, 'api_client'):
+            cls.api_client = get_client()
+
+        api_params = {}
+
+        if 'params' in kwargs:
+            api_params['params'] = cls.parse_url_parameters(kwargs.get('params', {}))
+
+        return cls.search(endpoint=f"{cls.endpoint}/{id}", **api_params)
+
+
+    @classmethod
+    def parse_url_parameters(self, params):
+        '''
+        Parses URL parameters and only keeps the approved parameters for the model
+        '''
+        return {k: params[k] for k in params if k in self.parameters}
+
 
     def create(self):
         '''
         Creates a new object in the API
         '''
 
+        # If the model doesn't allow create throw a NotImplementedError
         if 'create' not in self.actions:
             raise NotImplementedError(f'The "create" action is not implemented on {self.__class__.__name__}')
 
+        # Exclude fields that are not updatable
         request_body = {k: self.__dict__[k] for k in self.__dict__ if k in self.updatable_fields}
+
+        # Check required fields
+        for k in request_body:
+            if k not in self.required_fields:
+                raise MissingRequiredField(f'The field "{k}" is required.')
+
+        # If there are fields in the request_body call the API
         if len(request_body) > 0:
             response = self.api_client.call_api(method='POST', endpoint=f'{self.endpoint}', json=request_body)
             if response.status_code == [400, 409]:
                 raise RequestError(response.message)
             return response
+
         return None
 
 
@@ -127,7 +194,7 @@ class BaseModel(JSONSerializable):
             raise NotImplementedError(f'The "delete" action is not implemented on {self.__class__.__name__}')
 
         response = self.api_client.call_api(method='DELETE', endpoint=f'{self.endpoint}/{self.id}')
-        return response        
+        return responsible
 
 
     def as_dict(self):

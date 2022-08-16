@@ -15,3 +15,6 @@ class MaxSizeExeededError(Exception):
 
 class UrlLengthExceeded(Exception):
     pass
+
+class MissingRequiredField(Exception):
+    pass

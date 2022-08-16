@@ -5,13 +5,27 @@ from .url import (
     UrlClassificationInformation,
     UrlCategory
 )
+
 from .security import (
     AdvancedSecurityBlacklist
+)
+
+from .forwarding import (
+    PublicNode,
+    GreTunnel,
+    GreTunnelIPRange,
+    OrgProvisioningGreTunnelInfo,
+    StaticIp
 )
 
 __all__ = [
     'RuleLabel',
     'UrlClassificationInformation',
     'UrlCategory',
-    'AdvancedSecurityBlacklist'
+    'AdvancedSecurityBlacklist',
+    'PublicNode',
+    'GreTunnel',
+    'GreTunnelIPRange',
+    'OrgProvisioningGreTunnelInfo',
+    'StaticIp'
 ]

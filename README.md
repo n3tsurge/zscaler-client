@@ -39,7 +39,7 @@ print(lookup)
 - [ ] Firewall Policies
 - [ ] Location Management
 - [x] Rule Labels
-    - [x] Get rule labels
+    - [x] List rule labels
     - [x] Update rule labels
     - [x] Delete rule labels
 - [ ] Security Policy Settings
@@ -48,6 +48,16 @@ print(lookup)
 - [ ] SSL Inspection Settings
 - [ ] Traffic Forwarding
     - [x] Add VPN Credentials
+    - [x] List GRE Tunnels
+    - [x] List GRE Tunnel Available Internal IP Ranges
+    - [x] Get GRE Tunnel
+    - [ ] Update GRE Tunnel
+    - [ ] Delete GRE Tunnel
+    - [x] List Static IPs
+    - [x] Create Static IP
+    - [x] Update Static IP
+    - [x] Delete Static IP
+    - [x] List Zscaler Cloud VIPs
 - [ ] User Management
 - [ ] URL Categories
     - [x] URL Category list
