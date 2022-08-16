@@ -10,7 +10,7 @@ API_PASSWORD = os.getenv('ZSCALER_API_PASSWORD', '')
 API_BASE_URL = os.getenv('ZSCALER_API_BASE_URL', '')
 
 configuration = {
-    'ips': [
+    'static_ips': [
         {
             'ip': '198.199.81.37'
         }
@@ -50,10 +50,21 @@ client = create_client(config={'api_key': API_KEY}, base_url=API_BASE_URL)
 client.auth(username=API_USERNAME,password=API_PASSWORD)
 
 # Create a new Static IP
+static_ips = []
+for ip in configuration['static_ips']:
+    ip = StaticIp(**ip)
+    static_ips.append(ip)
 
 # Create a new VPN Credential
+creds = []
+for vpncred in configuration['location']['vpnCredentials']:
+    cred = VPNCredential(**vpncred)
+    cred.create()
+    creds.append(cred)
 
 # Create a new location
+location = Location(**location)
+location.vpnCredentials = creds
 
 # Assign the Static IP to Location
 # Assign the 
