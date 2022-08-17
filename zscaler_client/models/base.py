@@ -137,6 +137,11 @@ class BaseModel(JSONSerializable):
                 raise MissingRequiredParameter(f'The "{p}" parameter is required.')
 
         response = cls.api_client.call_api(method='GET', endpoint=_endpoint, **api_params)
+
+        # If this is a CSV download, just return the CSV content
+        if response.headers['Content-Type'] == 'text/csv;charset=UTF-8':
+            return response.text
+
         items = response.json()
         if isinstance(items, list):
             return [cls(**r) for r in items if r]
@@ -204,10 +209,11 @@ class BaseModel(JSONSerializable):
         if len(request_body) > 0:
             response = self.api_client.call_api(method='POST', endpoint=f'{self.endpoint}', json=request_body)
             if response.status_code == [400, 409]:
-                raise RequestError(response.message)
+                raise RequestError(f'{response.status_code} - {response.message}')
 
             # Update the attributes of the item just created with the response from API
-            self.__dict__.update(response.json())
+            if response._content != b'':
+                self.__dict__.update(response.json())
 
         return None
 

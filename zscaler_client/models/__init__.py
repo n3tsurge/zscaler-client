@@ -20,6 +20,8 @@ from .forwarding import (
     StaticIp    
 )
 
+from .audit import AuditLogReport, AuditLogReportDownload
+
 __all__ = [
     'RuleLabel',
     'UrlClassificationInformation',
@@ -31,5 +33,7 @@ __all__ = [
     'GreTunnel',
     'GreTunnelIPRange',
     'OrgProvisioningGreTunnelInfo',
-    'StaticIp'
+    'StaticIp',
+    'AuditLogReport',
+    'AuditLogReportDownload'
 ]

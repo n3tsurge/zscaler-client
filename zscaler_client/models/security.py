@@ -1,10 +1,12 @@
 from .base import BaseModel
 
+#class SecurityPolicy(BaseModel):
+
 class AdvancedSecurity(BaseModel):
 
     endpoint = '/security/advanced'
     actions = ['get']
-    
+
 
     @classmethod
     def overwrite(cls, urls: list = []) -> bool:

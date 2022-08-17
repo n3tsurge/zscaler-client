@@ -31,6 +31,10 @@ print(lookup)
 
 - [x] Activation
 - [ ] Admin Audit Logs
+    - [x] Create Admin Audit Log Report
+    - [x] Download Admin Audit Log Report
+    - [x] Convert Admin Audit Log to JSON
+    - [x] Delete Admin Audit Log Report (Cancel)
 - [ ] Admin & Role Management
 - [ ] Cloud Sandbox Report
 - [ ] Cloud Sandbox Submission

@@ -148,7 +148,11 @@ class APIClient:
         elif response.status_code == 405:
             raise RequestError(f'The method "{method}" is not supported for {endpoint}')
         else:
-            raise RequestError(response.text)
+            if hasattr(response, 'message'):
+                raise RequestError(f'{response.status_code} - {response.message}')
+            else:
+                print(response.request.__dict__)
+                raise RequestError(f'{response.status_code} - {response.text}')
 
 
     def auth(self, username, password):

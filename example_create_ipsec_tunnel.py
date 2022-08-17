@@ -1,8 +1,8 @@
 import time
 import json
 import os
-from ..client import create_client
-from ..models import *
+from zscaler_client.client import create_client
+from zscaler_client.models import *
 
 API_KEY = os.getenv('ZSCALER_API_KEY','')
 API_USERNAME = os.getenv('ZSCALER_API_USERNAME', '')
