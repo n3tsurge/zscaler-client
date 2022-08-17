@@ -8,14 +8,16 @@
 2. Initialize the API Client using the steps below
 
 ```python
+import os
 from zscaler_client.client import create_client
-from zscaler_client.models import UrlCategory
+from zscaler_client.models import UrlCategory, UrlClassificationInformation
 
 # Create a new client connection
-client = create_client(config={'api_key': 'YOUR_API_KEY_HERE'}, base_url="YOUR_BASE_URL_HERE")
+client = create_client(config={'api_key': os.getenv('ZSCALER_API_KEY','')}, base_url=os.getenv('ZSCALER_BASE_URL',''))
 
 # Authenticate to the API
-client.auth(username="API_USER", password="API_USER_PASSWORD")
+# Its recommended to use environmental variables
+client.auth(username=os.getenv("ZSCALER_API_USER",""), password=os.getenv("ZSCALER_API_USER_PASSWORD",""))
 
 # Fetch URL Categories
 categories = UrlCategory.search()
