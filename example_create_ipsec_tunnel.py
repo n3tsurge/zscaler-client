@@ -46,7 +46,7 @@ configuration = {
 }
 
 # Authentication to the API
-client = create_client(config={'api_key': API_KEY}, base_url=API_BASE_URL)
+client = create_client(api_key=API_KEY, base_url=API_BASE_URL)
 client.auth(username=API_USERNAME,password=API_PASSWORD)
 
 # Create a new Static IP

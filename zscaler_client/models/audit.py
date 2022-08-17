@@ -4,27 +4,29 @@ from io import BytesIO, TextIOWrapper
 from csv import reader
 from .base import BaseModel
 
+
 class AuditLogReportDownload(BaseModel):
 
     endpoint = '/auditlogEntryReport/download'
     actions = ['get']
 
+
 class AuditLogReport(BaseModel):
 
     endpoint = '/auditlogEntryReport'
     updatable_fields = [
-        'startTime','endTime','actionTypes','category','subcategories',
-        'actionResult','actionInterface','clientIP','adminName'
+        'startTime', 'endTime', 'actionTypes', 'category', 'subcategories',
+        'actionResult', 'actionInterface', 'clientIP', 'adminName'
     ]
-    actions = ['get','create','delete']
+    actions = ['get', 'create', 'delete']
 
     @classmethod
-    def generate_timestamp(cls, days_ago=0):
+    def generate_timestamp(cls, minutes_ago=0):
         ''' 
         A helper function to generate a timestamp in a format
         that the API expects
         '''
-        return int((datetime.datetime.now() - datetime.timedelta(days_ago)).timestamp())*1000
+        return int((datetime.datetime.now() - datetime.timedelta(minutes=minutes_ago)).timestamp())*1000
 
     @classmethod
     def csv_to_json(cls, data):
@@ -42,7 +44,7 @@ class AuditLogReport(BaseModel):
                     data = {}
                     for header in headers:
                         index = headers.index(header)
-                        clean_header_title = header.lower().replace(' ','_')
+                        clean_header_title = header.lower().replace(' ', '_')
                         data[clean_header_title] = row[index] if row[index] != "" else None
 
                     entries.append(json.dumps(data))

@@ -13,12 +13,12 @@ API_PASSWORD = os.getenv('ZSCALER_API_PASSWORD', '')
 API_BASE_URL = os.getenv('ZSCALER_API_BASE_URL', '')
 
 # Authentication to the API
-client = create_client(config={'api_key': API_KEY}, base_url=API_BASE_URL)
+client = create_client(api_key=API_KEY, base_url=API_BASE_URL)
 client.auth(username=API_USERNAME,password=API_PASSWORD)
 
 # Initialize an AuditLogReport item
 report = AuditLogReport(
-    startTime=AuditLogReport.generate_timestamp(days_ago=7),
+    startTime=AuditLogReport.generate_timestamp(minutes_ago=30),
     endTime=AuditLogReport.generate_timestamp(),
     actionTypes=['SIGN_IN','ACTIVATE','AUDIT_OPERATION','CREATE','DELETE','DOWNLOAD','FORCED_ACTIVATE','IMPORT','PATCH','REPORT','SIGN_OUT','UPDATE']
 )
