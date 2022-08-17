@@ -73,10 +73,11 @@ class Clients:
 
 class APIClient:
 
-    def __init__(self, config, base_url, *args, **kwargs):
+    def __init__(self, api_key, base_url, config={}, *args, **kwargs):
 
         self.config = config
         self.session = Session()
+        self.api_key = api_key
         self.base_url = base_url
         self.scheme =  kwargs.get('scheme','https')
 
@@ -103,7 +104,7 @@ class APIClient:
         Obfuscates the ZScaler API key per https://help.zscaler.com/zia/getting-started-zia-api
         '''
 
-        seed = self.config['api_key']
+        seed = self.api_key
         n = str(now)[-6:]
         r = str(int(n) >> 1).zfill(6)
         key = ""
