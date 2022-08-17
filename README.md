@@ -16,8 +16,7 @@ from zscaler_client.models import UrlCategory, UrlClassificationInformation
 client = create_client(api_key=os.getenv('ZSCALER_API_KEY',''), base_url=os.getenv('ZSCALER_BASE_URL',''))
 
 # Authenticate to the API
-client.auth(username=os.getenv("ZSCALER_API_USER",""), password=os.getenv("ZSCALER_API_USER_PASSWORD","")
-        )
+client.auth(username=os.getenv("ZSCALER_API_USER",""), password=os.getenv("ZSCALER_API_USER_PASSWORD",""))
 
 # Fetch URL Categories
 categories = UrlCategory.search()
@@ -32,12 +31,17 @@ print(lookup)
 ## API Coverage
 
 - [x] Activation
-- [ ] Admin Audit Logs
+- [x] Admin Audit Logs
     - [x] Create Admin Audit Log Report
     - [x] Download Admin Audit Log Report
     - [x] Convert Admin Audit Log to JSON
     - [x] Delete Admin Audit Log Report (Cancel)
-- [ ] Admin & Role Management
+- [x] Admin & Role Management
+    - [x] List Admin Users
+    - [x] List Admin Roles
+    - [x] Create Admin User
+    - [x] Update Admin User
+    - [x] Delete Admin User
 - [ ] Cloud Sandbox Report
 - [ ] Cloud Sandbox Submission
 - [ ] Data Loss Prevention

@@ -21,6 +21,7 @@ from .forwarding import (
 )
 
 from .audit import AuditLogReport, AuditLogReportDownload
+from .admin_role import AdminRoleLite, AdminUser
 
 __all__ = [
     'RuleLabel',
@@ -35,5 +36,7 @@ __all__ = [
     'OrgProvisioningGreTunnelInfo',
     'StaticIp',
     'AuditLogReport',
-    'AuditLogReportDownload'
+    'AuditLogReportDownload',
+    'AdminRoleLite',
+    'AdminUser'
 ]

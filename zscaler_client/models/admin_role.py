@@ -18,3 +18,4 @@ class AdminUser(BaseModel):
         'isExecMobileAppEnabled', ''
     ]
     required_fields = ['userName', 'loginName', 'email']
+    actions = ['get','post','create','update','delete']
